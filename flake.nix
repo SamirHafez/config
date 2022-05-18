@@ -2,10 +2,11 @@
   description = "NixOS Configuration";
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-21.11";
+    #nixpkgs.url = "nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/bacbfd713b4781a4a82c1f390f8fe21ae3b8b95b";
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-21.11";
+      url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -40,7 +41,7 @@
 
           hardware.video.hidpi.enable = true;
 
-          boot.kernelPackages = pkgs.linuxPackages_5_16;
+          boot.kernelPackages = pkgs.linuxPackages_5_15;
           boot.loader.systemd-boot.enable = true;
           boot.loader.efi.canTouchEfiVariables = true;
 
@@ -71,7 +72,8 @@
               x = 2560;
               y = 1600;
             }];
-            dpi = 230;
+            dpi = 227;
+            #dpi = 82;
 
             desktopManager = {
               xterm.enable = false;
@@ -88,13 +90,31 @@
 
           programs.zsh.enable = true;
 
-          users.users.samir = {
-            isNormalUser = true;
-            extraGroups = [ "wheel" "networkmanager" ];
-            shell = pkgs.zsh;
+          users= {
+            mutableUsers = false;
+            users.samir = {
+              isNormalUser = true;
+              extraGroups = [ "wheel" "networkmanager" ];
+              hashedPassword = "$6$4JAiwSPiW.yHIJUd$ZuTx6mPPkx3/Yl9uB.fel7D1A23JJ48wEDeLMNgX2yWdqmrILY7d1YYfHH3tUeM0TPEyAI4hn3mAlXzp21Ji4.";
+              shell = pkgs.zsh;
+            };
           };
 
-          environment.systemPackages = with pkgs; [
+          environment.systemPackages = let
+            my-cookies = pkgs.python3.pkgs.buildPythonApplication rec {
+              pname = "my_cookies";
+              version = "0.1.2";
+
+              src = pkgs.python3.pkgs.fetchPypi {
+                inherit pname version;
+                sha256 = "sha256-RvDt/FCLzBF9uT51jupyzOM/fz2KltBg8v0J0Fw8O4M=";
+              };
+
+              propagatedBuildInputs = with pkgs.python3.pkgs; [
+                browser-cookie3
+              ];
+            };
+          in with pkgs; [
             vim
             emacs
             pinentry
@@ -122,6 +142,8 @@
             go
             gopls
             libcap
+
+            python3 pyright my-cookies
           ];
 
           environment.sessionVariables.TERMINAL = [ "kitty" ];

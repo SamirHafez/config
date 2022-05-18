@@ -1,12 +1,23 @@
 { config, pkgs, ... }:
 
 {
-  xsession.windowManager.i3 = { enable = true; };
+  xsession.windowManager.i3 = {
+    enable = true;
+    config = { modifier = "Mod4"; };
+  };
+
+  xsession.pointerCursor = {
+    name = "Vanilla-DMZ";
+    package = pkgs.vanilla-dmz;
+    size = 128;
+  };
+
+  xresources.properties = { "Xft.dpi" = 227; };
 
   home.file.".emacs.d" = {
     recursive = true;
     source = fetchGit {
-      url = "git://github.com/syl20bnr/spacemacs.git";
+      url = "https://github.com/syl20bnr/spacemacs";
       ref = "develop";
       rev = "d366150139c2c3fa8b743f502efccd542e7a6f3a";
     };
@@ -159,20 +170,8 @@
 
     kitty = {
       enable = true;
-      font = {
-        name = "SauceCodePro Nerd Font Mono";
-        size = 28;
-      };
-      keybindings = {
-        "cmd+c" = "copy_to_clipboard";
-        "cmd+v" = "paste_from_clipboard";
-      };
+      font = { name = "SauceCodePro Nerd Font Mono"; };
+      settings = { hide_window_decorations = "yes"; };
     };
-  };
-
-  xsession.pointerCursor = {
-    name = "Vanilla-DMZ";
-    package = pkgs.vanilla-dmz;
-    size = 128;
   };
 }
