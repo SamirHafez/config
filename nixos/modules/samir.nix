@@ -6,29 +6,32 @@
     config = { modifier = "Mod4"; };
   };
 
-  xsession.pointerCursor = {
-    name = "Vanilla-DMZ";
-    package = pkgs.vanilla-dmz;
-    size = 128;
-  };
-
   xresources.properties = { "Xft.dpi" = 227; };
 
-  home.file.".emacs.d" = {
-    recursive = true;
-    source = fetchGit {
-      url = "https://github.com/syl20bnr/spacemacs";
-      ref = "develop";
-      rev = "d366150139c2c3fa8b743f502efccd542e7a6f3a";
+  home = {
+    pointerCursor.x11.enable = true;
+    pointerCursor = {
+      name = "Vanilla-DMZ";
+      package = pkgs.vanilla-dmz;
+      size = 128;
     };
-  };
 
-  home.packages = with pkgs; [ xsel ];
+    file.".emacs.d" = {
+      recursive = true;
+      source = fetchGit {
+        url = "https://github.com/syl20bnr/spacemacs";
+        ref = "develop";
+        rev = "d366150139c2c3fa8b743f502efccd542e7a6f3a";
+      };
+    };
 
-  home.keyboard = {
-    layout = "gb";
-    model = "pc105";
-    variant = "mac";
+    packages = with pkgs; [ xsel ];
+
+    keyboard = {
+      layout = "gb";
+      model = "pc105";
+      variant = "mac";
+    };
   };
 
   services.gpg-agent = {
