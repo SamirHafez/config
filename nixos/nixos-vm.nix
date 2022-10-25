@@ -1,8 +1,9 @@
 { nixpkgs, home-manager, fenix }:
 nixpkgs.lib.nixosSystem {
-  system = "x86_64-linux";
+  system = "aarch64-linux";
   modules = [
-    ./thinkpad-t470-hardware.nix
+    ./nixos-vm-hardware.nix
+    ./modules/vmware-guest.nix
     home-manager.nixosModules.home-manager
     {
       home-manager.useGlobalPkgs = true;
@@ -11,10 +12,6 @@ nixpkgs.lib.nixosSystem {
     }
     ({ pkgs, ... }: {
       nixpkgs.overlays = [ fenix.overlay ];
-      nixpkgs.config.allowUnfree = true;
-      nixpkgs.config.packageOverrides = pkgs: {
-        vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
-      };
 
       nix = {
         package = pkgs.nixFlakes;
@@ -23,20 +20,29 @@ nixpkgs.lib.nixosSystem {
         '';
       };
 
+      disabledModules = [ "virtualisation/vmware-guest.nix" ];
+
+      hardware.video.hidpi.enable = true;
+
       boot = {
-        kernelPackages = pkgs.linuxPackages_latest;
+        kernelPackages = pkgs.linuxPackages_5_15;
         loader.systemd-boot.enable = true;
         loader.efi.canTouchEfiVariables = true;
       };
 
       networking = {
+        useDHCP = false;
+        interfaces.ens160.useDHCP = true;
         hostName = "nixos";
-        networkmanager = { enable = true; };
+        wireless.enable = false;
       };
 
       time.timeZone = "Europe/London";
 
-      virtualisation = { docker.enable = true; };
+      virtualisation = {
+        docker.enable = true;
+        vmware.guest.enable = true;
+      };
 
       i18n.defaultLocale = "en_US.UTF-8";
       console = {
@@ -44,37 +50,31 @@ nixpkgs.lib.nixosSystem {
         keyMap = "us";
       };
 
-      services.xserver.videoDrivers = [ "intel" ];
-      services.xserver.deviceSection = ''
-        Option "DRI" "2"
-        Option "TearFree" "true"
-      '';
-
-      services.blueman.enable = true;
-
       services.xserver = {
         enable = true;
-        dpi = 111;
 
         layout = "gb";
+        xkbModel = "pc105";
+        xkbVariant = "mac";
+
+        resolutions = [{
+          x = 2560;
+          y = 1600;
+        }];
+        dpi = 227;
+        #dpi = 82;
 
         desktopManager = {
           xterm.enable = false;
           wallpaper.mode = "scale";
-          xfce = {
-            enable = true;
-            noDesktop = true;
-            enableXfwm = false;
-          };
         };
 
         displayManager = {
-          defaultSession = "xfce+i3";
+          defaultSession = "none+i3";
           lightdm.enable = true;
         };
 
         windowManager.i3.enable = true;
-        windowManager.i3.package = pkgs.i3-gaps;
       };
 
       programs.zsh.enable = true;
@@ -83,7 +83,7 @@ nixpkgs.lib.nixosSystem {
         mutableUsers = false;
         users.samir = {
           isNormalUser = true;
-          extraGroups = [ "wheel" "networkmanager" "docker" ];
+          extraGroups = [ "wheel" "networkmanager" ];
           hashedPassword =
             "$6$4JAiwSPiW.yHIJUd$ZuTx6mPPkx3/Yl9uB.fel7D1A23JJ48wEDeLMNgX2yWdqmrILY7d1YYfHH3tUeM0TPEyAI4hn3mAlXzp21Ji4.";
           shell = pkgs.zsh;
@@ -104,7 +104,6 @@ nixpkgs.lib.nixosSystem {
         };
       in with pkgs; [
         vim
-        (emacs.override { toolkit = "lucid"; })
         emacs
         pinentry
         pinentry-emacs
@@ -130,38 +129,30 @@ nixpkgs.lib.nixosSystem {
 
         go
         gopls
-        gopkgs
-        gotests
         libcap
 
         python3
         pyright
         my-cookies
-        firefox
-        zoom-us
-        terraform
-        terraform-ls
-        kubectl
-        kubectx
-        kube3d
-        dnsutils
-        wally-cli
       ];
 
       environment.sessionVariables.TERMINAL = [ "kitty" ];
 
-      fonts = {
-        enableDefaultFonts = true;
-        fonts = with pkgs;
-          [ (nerdfonts.override { fonts = [ "SourceCodePro" ]; }) ];
-        fontconfig = {
-          defaultFonts = {
-            serif = [ "DejaVu" ];
-            sansSerif = [ "DejaVu" ];
-            monospace = [ "SourceCodePro" ];
-          };
-        };
+      fileSystems."/host" = {
+        fsType = "fuse./run/current-system/sw/bin/vmhgfs-fuse";
+        device = ".host:/";
+        options = [
+          "umask=22"
+          "uid=1000"
+          "gid=1000"
+          "allow_other"
+          "auto_unmount"
+          "defaults"
+        ];
       };
+
+      fonts.fonts = with pkgs;
+        [ (nerdfonts.override { fonts = [ "SourceCodePro" ]; }) ];
 
       system.stateVersion = "22.05";
     })
