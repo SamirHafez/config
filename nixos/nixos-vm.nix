@@ -58,8 +58,8 @@ nixpkgs.lib.nixosSystem {
         xkbVariant = "mac";
 
         resolutions = [{
-          x = 2560;
-          y = 1600;
+          x = 1920;
+          y = 1440;
         }];
         dpi = 227;
         #dpi = 82;
@@ -75,6 +75,7 @@ nixpkgs.lib.nixosSystem {
         };
 
         windowManager.i3.enable = true;
+        windowManager.i3.package = pkgs.i3-gaps;
       };
 
       programs.zsh.enable = true;

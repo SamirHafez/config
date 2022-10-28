@@ -303,7 +303,7 @@
       enable = true;
       font = {
         name = "SauceCodePro Nerd Font Mono";
-        size = 14;
+        size = 18;
       };
       settings = { hide_window_decorations = "yes"; };
     };
