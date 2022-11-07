@@ -4,20 +4,20 @@ with lib;
 
 let
   cfg = config.services.lazylibrarian;
-  pythonWithDeps = pkgs.python3.withPackages (ps: with ps; [urllib3 requests charset-normalizer]);
+  pythonWithDeps = pkgs.python3.withPackages
+    (ps: with ps; [ urllib3 requests charset-normalizer ]);
   lazylibrarian = pkgs.stdenv.mkDerivation rec {
-     pname = "lazylibrarian";
-      version = "1.7.2";
-      src = pkgs.fetchgit { 
-        url = "https://gitlab.com/LazyLibrarian/LazyLibrarian";
-        sha256 = "Od18RClmLw2QDL6vO29Tu4AYjdXWtLwRVXFq2bD/QP4=";
-      };
-     installPhase = ''
-       cp -r . $out/
-     '';
-  };  
-in
-{
+    pname = "lazylibrarian";
+    version = "1.7.2";
+    src = pkgs.fetchgit {
+      url = "https://gitlab.com/LazyLibrarian/LazyLibrarian";
+      sha256 = "sha256-qHZ8MrrpRu59uf/A/Aj7e//bh7OefILdaWG/Pz+w5yY=";
+    };
+    installPhase = ''
+      cp -r . $out/
+    '';
+  };
+in {
   options = {
     services.lazylibrarian = {
       enable = mkEnableOption "LazyLibrarian";
@@ -25,13 +25,15 @@ in
       dataDir = mkOption {
         type = types.str;
         default = "/var/lib/lazylibrarian";
-        description = "The directory where LazyLibrarian stores its data files.";
+        description =
+          "The directory where LazyLibrarian stores its data files.";
       };
 
       openFirewall = mkOption {
         type = types.bool;
         default = false;
-        description = "Open ports in the firewall for the LazyLibrarian web interface.";
+        description =
+          "Open ports in the firewall for the LazyLibrarian web interface.";
       };
 
       user = mkOption {
@@ -49,9 +51,8 @@ in
   };
 
   config = mkIf cfg.enable {
-    systemd.tmpfiles.rules = [
-      "d '${cfg.dataDir}' 0700 ${cfg.user} ${cfg.group} - -"
-    ];
+    systemd.tmpfiles.rules =
+      [ "d '${cfg.dataDir}' 0700 ${cfg.user} ${cfg.group} - -" ];
 
     systemd.services.lazylibrarian = {
       description = "LazyLibrarian";
@@ -63,14 +64,13 @@ in
         User = cfg.user;
         Group = cfg.group;
         WorkingDirectory = "${lazylibrarian}";
-        ExecStart = "${pythonWithDeps}/bin/python3 LazyLibrarian.py --datadir='${cfg.dataDir}' --debug";
+        ExecStart =
+          "${pythonWithDeps}/bin/python3 LazyLibrarian.py --datadir='${cfg.dataDir}' --debug";
         Restart = "on-failure";
       };
     };
 
-    networking.firewall = mkIf cfg.openFirewall {
-      allowedTCPPorts = [ 5299 ];
-    };
+    networking.firewall = mkIf cfg.openFirewall { allowedTCPPorts = [ 5299 ]; };
 
     users.users = mkIf (cfg.user == "lazylibrarian") {
       lazylibrarian = {
