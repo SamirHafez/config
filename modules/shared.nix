@@ -193,7 +193,10 @@
               name = "SauceCodePro Nerd Font Mono";
               size = 18;
             };
-            settings = { hide_window_decorations = "yes"; };
+            settings = {
+              hide_window_decorations = "yes";
+              macos_option_as_alt = "no";
+            };
           };
         };
       };
