@@ -248,6 +248,9 @@
       extraGroups = [ "wheel" "networkmanager" "docker" ];
       hashedPassword =
         "$6$4JAiwSPiW.yHIJUd$ZuTx6mPPkx3/Yl9uB.fel7D1A23JJ48wEDeLMNgX2yWdqmrILY7d1YYfHH3tUeM0TPEyAI4hn3mAlXzp21Ji4.";
+      openssh.authorizedKeys.keys = [
+        "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCenwvQ4fQAH6MC4FCDsRHwE83gl+vS7cv1FD8DgpqTEL4ob9gU5KLwdp5hhf4fauVgToNjft0T4GeC5iHFw6efJ3TVE8XhXin3FRvJFNV1Rl6gAqynpAWfXxzCMDIg0TYXXI3e4+ePYk2GcJAxfbTDUycydpYWFvqiqPcyyt5/7POOV39fOvoMDBc1r9vtyTJQVCb/DP+a6SqlRosSZMU/KhnQyfOE/Bmk6OwQlbn02CAFNWHw1VEaNs2b0YBcCXAhdZBHbbcjIXSO1mh2Xs4w4vRTTZhmsZyUSKXV38es+TzioqUrKEjsWJi/DQuAkhxWjWKx9YaY/6sxIirtThXz cardno:000606352946"
+      ];
       shell = pkgs.zsh;
     };
   };
