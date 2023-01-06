@@ -121,6 +121,10 @@
             enableAutosuggestions = true;
             enableCompletion = true;
 
+            initExtra = ''
+              source /home/samir/.config/op/plugins.sh
+            '';
+
             plugins = [
               {
                 name = "zsh-fast-syntax-highlighting";
@@ -175,6 +179,8 @@
                 includesPullRequestsSection = true;
                 includesIssuesSection = true;
               };
+
+              gitlab = { user = "SamirHafez"; };
 
               url."ssh://git@github.com/".insteadOf = "https://github.com/";
 
